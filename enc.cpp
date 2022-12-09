@@ -46,6 +46,60 @@ void export_ciphertext(LweSample* &ciphertext) {
 
 }
 
+/// duh duh duh 
+void end ( LweSample* result , const LweSample* c, const TFheGateBootstrappingCloudKeySet* bk)
+{
+    int l= sizeof(c)/sizeof(c[0]);
+    // LweSample* result = new_gate_bootstrapping_ciphertext_array(l-1, bk->params);
+    LweSample* r= new_gate_bootstrapping_ciphertext(bk->params);  //uh not sure how to make it one variable 
+    while( l>1){
+        
+        for (i =0; i<l-1; i++)
+
+        {
+        
+            // # "And" the current bit and the next bit, and add the result
+            // # to the resulting string
+            bootsAND(r, c[i], c[i+1])
+            result[i]=r
+        
+        }
+        
+        c=result;
+        l= sizeof(c)/sizeof(c[0]);
+        
+    }
+
+}
+
+void compare_strings(LweSample* result, const LweSample* a, const LweSample* b, int n, const TFheGateBootstrappingCloudKeySet* bk)
+{ 
+    int len = sizeof(a)/sizeof(a[0]);
+
+    if(len != n)
+    {
+        return 0 ;
+    }
+
+    LweSample* tmps = new_gate_bootstrapping_ciphertext_array(n, bk->params);   
+
+    // not sure what exactly the above thing gives but hopefully an array of len equal to n 
+
+    for (int i =0; i< n; i++)
+        {
+            bootsXNOR(&tmps[i], &a[i], &b[i], bk); 
+            //    # the xnor to check equality   for every bit and storing the result in     tmps  
+           
+        }
+
+    // LweSample* result = new_gate_bootstrapping_ciphertext_array(n-1, bk->params);   
+    end (result, tmps, bk)
+
+}
+
+//// du duh duh 
+
+
 
 int main() {
     generate_keys(110);
