@@ -1,6 +1,9 @@
-#include <tfhe/tfhe.h>
-#include <tfhe/tfhe_io.h>
+#include "tfhe.h"
+#include "tfhe_io.h"
 #include <stdio.h>
+#include <string>
+#include <iostream>
+using namespace std;
 
 // generate cloud keys and put them in appropriate files, will use same key for every 16 bits to encrypt
 void generate_keys(const int minimum_lambda) {
@@ -28,15 +31,16 @@ void generate_keys(const int minimum_lambda) {
 }
 
 //encrypt the 16 bits of input
-LweSample* encrypt16(int16_t plaintext) {
+LweSample* encrypt16(int16_t plaintext, TFheGateBootstrappingParameterSet* params, TFheGateBootstrappingSecretKeySet* key) {
     LweSample* ciphertext = new_gate_bootstrapping_ciphertext_array(16, params);
     for (int i=0; i<16; i++) {
         bootsSymEncrypt(&ciphertext[i], (plaintext>>i)&1, key);
     }
-    delete_gate_bootstrapping_ciphertext_array(16, ciphertext);
+    // delete_gate_bootstrapping_ciphertext_array(16, ciphertext);
+    return ciphertext;
 }
 
-void export_ciphertext(LweSample* &ciphertext) {
+void export_ciphertext(LweSample* &ciphertext, TFheGateBootstrappingParameterSet* params) {
     //export the 2x16 ciphertexts to a file (for the cloud)
     FILE* cloud_data = fopen("cloud.data","wb");
     for (int i=0; i<16; i++) {
@@ -103,13 +107,18 @@ void compare_strings(LweSample* result, const LweSample* a, const LweSample* b, 
 
 int main() {
     generate_keys(110);
-    char string_of_bits = '110010101010101001010111100101001010111010101101';
+    string string_of_bits = "110010101010101001010111100101001010111010101101";
     int buffer = string_of_bits.length();
     int string_index = 0;
-    while (True) {
+
+    FILE* secret_key = fopen("secret.key","rb");
+    FILE* cloud_key = fopen("cloud.key","rb");
+    FILE* cloud_data = fopen("cloud.data","rb");
+
+    while (0==0) {
         if (buffer - string_index >= 16) {
             //encrypt next 16 bits
-            export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:string_index+16])));
+            export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:string_index+16]), ));
             string_index = string_index + 16
         }
         else if (buffer - string_index < 16){
@@ -118,20 +127,4 @@ int main() {
             break;
         }
     }
-    
- LweSample* ciphertexts = new_gate_bootstrapping_ciphertext_array(n, bk->params);  
- import_gate_bootstrapping_ciphertext_fromFile(FILE* F, LweSample* sample, const TFheGateBootstrappingParameterSet* params);
- LweSample* result= new_gate_bootstrapping_ciphertext(bk->params) ; 
-
- int count= 0
- for (i =0 ; i<n ; i++)
- {
-    compare_strings(result, ciphertexts[i], keyword[i], bk);
-    if(result[0]==1)
-    {
-        count++; 
-    }
- }
- 
-
 }
