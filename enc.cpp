@@ -118,4 +118,20 @@ int main() {
             break;
         }
     }
+    
+ LweSample* ciphertexts = new_gate_bootstrapping_ciphertext_array(n, bk->params);  
+ import_gate_bootstrapping_ciphertext_fromFile(FILE* F, LweSample* sample, const TFheGateBootstrappingParameterSet* params);
+ LweSample* result= new_gate_bootstrapping_ciphertext(bk->params) ; 
+
+ int count= 0
+ for (i =0 ; i<n ; i++)
+ {
+    compare_strings(result, ciphertexts[i], keyword[i], bk);
+    if(result[0]==1)
+    {
+        count++; 
+    }
+ }
+ 
+
 }
