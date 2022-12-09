@@ -106,13 +106,16 @@ int main() {
     char string_of_bits = '110010101010101001010111100101001010111010101101';
     int buffer = string_of_bits.length();
     int string_index = 0;
-    if (buffer - string_index >= 16) {
-        //encrypt next 16 bits
-        export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:string_index+16])));
-        string_index = string_index + 16
-    }
-    else if (buffer - string_index < 16){
-        //encrypt remaining bits
-        export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:buffer])));
+    while (True) {
+        if (buffer - string_index >= 16) {
+            //encrypt next 16 bits
+            export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:string_index+16])));
+            string_index = string_index + 16
+        }
+        else if (buffer - string_index < 16){
+            //encrypt remaining bits
+            export_ciphertext(encrypt16(int16_t(string_of_bits[string_index:buffer])));
+            break;
+        }
     }
 }
