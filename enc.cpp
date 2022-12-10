@@ -51,38 +51,59 @@ void export_ciphertext(LweSample* &ciphertext, TFheGateBootstrappingParameterSet
 }
 
 /// duh duh duh 
-void end ( LweSample* result , const LweSample* c, const TFheGateBootstrappingCloudKeySet* bk)
+LweSample* end ( LweSample* result , const LweSample* c, const TFheGateBootstrappingCloudKeySet* bk)
 {
+
     int l= sizeof(c)/sizeof(c[0]);
-    // LweSample* result = new_gate_bootstrapping_ciphertext_array(l-1, bk->params);
+
+
+    LweSample* resul[ l ]; 
     LweSample* r= new_gate_bootstrapping_ciphertext(bk->params);  //uh not sure how to make it one variable 
-    while( l>1){
-        
-        for (i =0; i<l-1; i++)
+
+    for (int i =0; i<l-1; i+=2)
 
         {
         
             // # "And" the current bit and the next bit, and add the result
             // # to the resulting string
-            bootsAND(r, c[i], c[i+1])
-            result[i]=r
+            bootsAND(r, &c[i], &c[i+1], bk);
+            resul[i]=r;
         
         }
         
-        c=result;
-        l= sizeof(c)/sizeof(c[0]);
+    while( l>1){
+        
+        for (int i =0; i<l-1; i+=2)
+
+        {
+        
+            // # "And" the current bit and the next bit, and add the result
+            // # to the resulting string
+            bootsAND(r, &c[i], &c[i+1], bk);
+            resul[i]=r;
+        
+        }
+        
+        l=l/2;
         
     }
 
+
+    return resul[0];
+
 }
 
-void compare_strings(LweSample* result, const LweSample* a, const LweSample* b, int n, const TFheGateBootstrappingCloudKeySet* bk)
+LweSample* compare_strings(LweSample* result, const LweSample* a, const LweSample* b, int n, const TFheGateBootstrappingCloudKeySet* bk)
 { 
     int len = sizeof(a)/sizeof(a[0]);
+    LweSample* t= new_gate_bootstrapping_ciphertext(bk->params);
+    bootsCONSTANT(t, 0, bk);
+    LweSample* resul[ len ]; 
 
     if(len != n)
     {
-        return 0 ;
+        resul[0]=t;
+        cout << resul[0];
     }
 
     LweSample* tmps = new_gate_bootstrapping_ciphertext_array(n, bk->params);   
@@ -97,10 +118,9 @@ void compare_strings(LweSample* result, const LweSample* a, const LweSample* b, 
         }
 
     // LweSample* result = new_gate_bootstrapping_ciphertext_array(n-1, bk->params);   
-    end (result, tmps, bk)
+    return end(result, tmps, bk);
 
 }
-
 //// du duh duh 
 
 
